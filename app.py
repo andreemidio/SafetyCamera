@@ -3,27 +3,26 @@ from camera import camera_stream
 
 app = Flask(__name__)
 
+
 @app.route('/')
 def index():
-    """Que haja luz"""
+    """Video streaming home page."""
     return render_template('index.html')
 
 
-def generatorFrame():
-
-    while (True):
-        frame =  camera_stream()
+def gen_frame():
+    """Video streaming generator function."""
+    while True:
+        frame = camera_stream()
         yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n') # concatena cada frame um a um
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n') # concate frame one by one and show result
 
-@app.route('/video')
-def video():
 
-    return Response(
-    generatorFrame(),
-    mimetype = 'multipart/x-mixed-replace; boundary = frame' 
-
-    )
+@app.route('/video_feed')
+def video_feed():
+    """Video streaming route. Put this in the src attribute of an img tag."""
+    return Response(gen_frame(),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 if __name__ == '__main__':
